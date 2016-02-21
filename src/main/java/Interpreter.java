@@ -32,7 +32,7 @@ public class Interpreter {
 		_inputNoSpace = _inputNoSpace.replaceAll("\\s", "");
 		_inputNoSpace = _inputNoSpace.toLowerCase();
     }
-	
+    
     /**
      * Getter function - of the string for calculation.
      * @return - retrieve the _inputNoSpace.
