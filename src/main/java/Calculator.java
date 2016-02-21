@@ -31,6 +31,8 @@ public class Calculator {
 		//loop through all the argument and calculate the result of arithmetic operation
 		for (String input: args) {
 			if (input != null){
+				Interpreter interpreter = new Interpreter(input);
+				input = interpreter.getCleanInput();
 			    System.out.println("Expression = " + input);
 			}
 		}
