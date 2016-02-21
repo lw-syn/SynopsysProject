@@ -1,6 +1,15 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * InterpreterTest Class
+ * - Unit test for Interpreter class
+ * 
+ * @author Lawrence Wong
+ * @since Feb 21, 2016
+ * @version 1.0
+ */
+
 public class InterperterTest {
 	@Test
 	public void testInterperterConstructor()
