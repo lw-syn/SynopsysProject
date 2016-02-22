@@ -7,15 +7,15 @@
  *
  */
 public class Calculation {
-	private int _first;
-	private int _second;
+	private double _first;
+	private double _second;
 
 	/**
 	 * Default constructor to set both _frist and _second to zero
 	 */
 	Calculation (){
-		_first = 0;
-		_second = 0;
+		_first = 0.0;
+		_second = 0.0;
 	}
 	
 	/**
@@ -23,41 +23,41 @@ public class Calculation {
 	 * @param first
 	 * @param second
 	 */
-    Calculation(int first, int second){
+    Calculation(double first, double second){
     	_first = first;
     	_second = second;
     }
     
     /**
      * Perform Addition
-     * @return int
+     * @return double
      */
-    public int add(){
+    public double add(){
     	return(_first + _second);
     }
 
     /**
      * Perform Subtraction
-     * @return int
+     * @return double
      */
-    public int sub(){
+    public double sub(){
     	return(_first - _second);
     }
 
     /**
      *  Perform Multiplication
-     * @return int
+     * @return double
      */
-    public int mult(){
+    public double mult(){
     	return(_first * _second);
     }
 
     /**
      *  Perform Division. If the denominator is 0, it return Double.NaN
-     * @return
+     * @return double
      */
     public double div(){
-    	if (_second != 0){
+    	if (_second != 0.0){
     		return(_first / _second);
     	}else{
     		return Double.NaN;

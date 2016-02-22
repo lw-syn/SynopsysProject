@@ -32,8 +32,10 @@ public class Calculator {
 		for (String input: args) {
 			if (input != null){
 				Interpreter interpreter = new Interpreter(input);
-				input = interpreter.getCleanInput();
-			    System.out.println("Expression = " + input);
+				String inputNoSpace = interpreter.getCleanInput();
+				System.out.println("Expression = " + inputNoSpace );
+				String result = interpreter.parserInputString(inputNoSpace);
+			    System.out.println(result);
 			}
 		}
 	}
