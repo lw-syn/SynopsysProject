@@ -12,7 +12,9 @@ public class Interpreter {
 	private String _inputNoSpace;
 	
 	public final static String ERR_EMPTY_STR = "Input String is empty!";
-    public final static String ERR_INPUT_ARGUMENT = "Error in the argument!";
+	public final static String ERR_INPUT_ARGUMENT = "Error in the argument!";
+	public final static String ERR_NO_MATCH_BRACKET = "No Matching bracket!";
+	public final static String ERR_MISLOCATE_OPEN_CLOSE_BRACKET = "Mislocate open and close brackets!";
     public final static String ERR_DIV_ZERO = "Denominator is zero of division!";
     public final static String ERR_UNKNOWN_OPERATOR = "Unknown Operator!";
     private final String ADD = "add";
@@ -116,10 +118,11 @@ public class Interpreter {
     	// Check the index of open and close brackets
     	// case 1: if the open or close bracket index is -1, it means no bracket pair in the expression
     	// case 2: if the open bracket index is larger than close bracket index, it means the expression format is incorrect 
-    	if ((inputOpenBracketIndex > inputCloseBracketIndex) || 
-    		(inputCloseBracketIndex == -1) || 
+    	if (inputOpenBracketIndex > inputCloseBracketIndex)
+    		return ERR_MISLOCATE_OPEN_CLOSE_BRACKET;
+    	if ((inputCloseBracketIndex == -1) || 
     		(inputOpenBracketIndex == -1)){
-    		return ERR_INPUT_ARGUMENT;
+    		return ERR_NO_MATCH_BRACKET;
     	}
     	String subStr = new String("");
     	int lastOpenBracketOnLeft = -1;

@@ -1,3 +1,11 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 /**
  * Calculator Class - Get the input argument from user
  * Create the Interpreter object to parse the arithmetic operation
@@ -20,23 +28,103 @@
  *Implement a logging layer to log all relevant information.  Manage at least 3 levels of verbosity:
  *INFO, ERROR, and DEBUG.  Allow Verbosity to be set via a command-line option.
  *
+ *If user type INFO as parameter, it will print all the successful calculations ever run from this Calculator
+ *If user type ERROR as parameter, it will print all the failure calculations ever run from this Calculator
+ *If user type DEBUG as parameter, it will print all the failure calculations with proper error ever run from this Calculator
+ *
  * @author Lawrence Wong
  * @since Feb 20, 2016
  * @version 1.0
  */
 
 public class Calculator {
+	
+	private final static String errorFile = "error.txt";
+	private final static String infoFile = "info.txt";
+	private final static String debugFile = "debug.txt";
+	private final static String INFO = "INFO";
+	private final static String ERROR = "ERROR";
+	private final static String DEBUG = "DEBUG";
 
 	public static void main(String[] args) {
+		
+		// Create the Info, Error and Debug files
+		File fileError = new File(errorFile);
+		File fileInfo = new File(infoFile);
+		File fileDebug = new File(debugFile);
+		try {
+			fileInfo.createNewFile();
+			fileError.createNewFile();
+			fileDebug.createNewFile();
+		} catch (IOException e) {
+		    System.out.println(String.format("Fail to create the %s and %s files", infoFile, errorFile));
+		}
+		// If the only 1 argument and it is either INFO, ERROR, or DEBUG, Display the log files respectively
+		if (args.length == 1){
+			if (args[0].equals(INFO)){
+				displayFile(infoFile);
+			}else if (args[0].equals(ERROR)){
+				displayFile(errorFile);
+			}else if (args[0].equals(DEBUG)){
+				displayFile(debugFile);
+			}				
+		}
 		//loop through all the argument and calculate the result of arithmetic operation
 		for (String input: args) {
 			if (input != null){
-				Interpreter interpreter = new Interpreter(input);
-				String inputNoSpace = interpreter.getCleanInput();
-				System.out.println("Expression = " + inputNoSpace );
-				String result = interpreter.parserInputString(inputNoSpace);
-			    System.out.println(result);
+				if ((!input.equals(INFO)) &&
+					(!input.equals(ERROR) &&
+					(!input.equals(DEBUG)))){
+					// If it is not INFO, ERROR, DEBUG
+					Interpreter interpreter = new Interpreter(input);
+					String inputNoSpace = interpreter.getCleanInput();
+					System.out.println("Expression = " + inputNoSpace );
+					String result = interpreter.parserInputString(inputNoSpace);
+					String msg = String.format("%s : %s%n", input, result);
+					if ((result.equals(Interpreter.ERR_DIV_ZERO)) ||
+					  	(result.equals(Interpreter.ERR_EMPTY_STR)) ||
+					   	(result.equals(Interpreter.ERR_INPUT_ARGUMENT)) ||
+					   	(result.equals(Interpreter.ERR_UNKNOWN_OPERATOR))){
+					   	// If error, write it to error and debug file
+					   	try{
+					   		Files.write(Paths.get(errorFile), String.format("%s%n", input).getBytes(), StandardOpenOption.APPEND);
+					   		Files.write(Paths.get(debugFile), msg.getBytes(), StandardOpenOption.APPEND);
+					   	}catch (IOException e){
+					  		System.out.println("Fail to write the error file" + msg);
+					   	}
+				     } else{
+					    	//If not error, write it to info file
+					    	try{
+					    		Files.write(Paths.get("info.txt"), msg.getBytes(), StandardOpenOption.APPEND);
+					    	}catch (IOException e){
+					    		System.out.println("Fail to write the error file" + msg);
+					    	}
+					    }
+				    System.out.println(result);
+				}
 			}
+		}
+	}
+	
+	/**
+	 * displayFile - display the content of the 
+	 * @param file
+	 */
+	private static void displayFile(String file){
+		try{
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			StringBuffer stringBuffer = new StringBuffer();
+			String line;
+			// Read through each line of the file and print it out to the output window.
+			while ((line = bufferedReader.readLine()) != null) {
+				stringBuffer.append(line);
+				stringBuffer.append("\n");
+			}
+			fileReader.close();
+			System.out.println(stringBuffer.toString());
+		}catch (IOException e){
+			System.out.println("Fail to read the file");
 		}
 	}
 }
