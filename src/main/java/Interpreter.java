@@ -187,7 +187,148 @@ public class Interpreter {
     	return(parserInputString(newStr));
     }
     
+    /**
+     * HandleLetKeyword function.
+     * Scan backward to find the first let keyword from the end of string.
+     * Find the variable and the value expression.
+     * Replace variable with the value expression from the string
+     * @param inputStr
+     * @return the new string after the replacement
+     */
     private String HandleLetKeyword(String inputStr){
-    	return null;
+    	// Make sure inputStr is not null
+    	if (inputStr == null){
+    		return null;
+    	}
+    	// Backward scan to find the location of the let keyword
+    	int letLocation = inputStr.lastIndexOf(LET);
+    	// Find the location of first comma from let keyword
+    	if (letLocation == -1){
+    		return null;
+    	}
+    	int firstComma = inputStr.indexOf(COMMA, letLocation);
+    	if (firstComma == -1){
+    		return null;
+    	}
+    	// Find the variable
+    	String varStr = inputStr.substring(letLocation + LET.length()+1, firstComma);
+    	int secondComma = inputStr.indexOf(COMMA, firstComma+1);
+    	if (secondComma == -1){
+    		return null;
+    	}
+    	// Find the value expression
+    	String valStr = inputStr.substring(firstComma+1, secondComma);
+    	int closeBracket = -1;
+    	String expression = new String ("");
+    	try{
+    		// Check whether the valStr is actual a number
+    		Double.parseDouble(valStr);
+    		closeBracket = inputStr.indexOf(CLOSEBRACKET, secondComma+1);
+    		if (closeBracket == -1){
+    			return null;
+    		}
+    		expression = inputStr.substring(secondComma+1, inputStr.length());
+    		expression = adjustExpression(expression);
+    	}catch(NumberFormatException e){
+    		// It means the valStr is not a number, need further analysis of the string
+    		int thirdComma = inputStr.indexOf(COMMA, secondComma+1);
+    		if (thirdComma == -1){
+    			return null;
+    		}
+    		valStr = inputStr.substring(firstComma+1, thirdComma);
+    		closeBracket = inputStr.indexOf(CLOSEBRACKET, thirdComma+1);
+    		if (closeBracket == -1){
+    			return null;
+    		}
+    		expression = inputStr.substring(thirdComma+1, closeBracket+1);
+    	}
+    	// Replace the variable with value expression
+    	int loc = expression.indexOf(varStr);
+    	while(loc != -1){
+    		// If it is an arithmetic expression, skip it - don't replace 
+    		if (!isOperator(expression, loc)){
+    			expression = expression.substring(0, loc) + valStr + 
+    					expression.substring(loc+varStr.length(), expression.length());
+    		}
+    		loc = expression.indexOf(varStr, loc+1);
+    	}   
+    	// Insert the expression to replace the let keyword expression
+		String firstHalfStr = inputStr.substring(0, letLocation);
+		String secondHalfStr = new String("");
+		int endComma = inputStr.indexOf(COMMA, closeBracket+1);
+		if (endComma != -1){
+			secondHalfStr = inputStr.substring(endComma, inputStr.length());
+		}else{
+			secondHalfStr = inputStr.substring(closeBracket+1, inputStr.length()-1);
+		}
+		String newStr;
+		if ((!firstHalfStr.isEmpty()) && (!secondHalfStr.isEmpty())){
+			newStr = firstHalfStr + expression + secondHalfStr;
+		}else{
+			newStr = expression;
+		}
+		return newStr;
+    }
+    /**
+     * isOperator function.
+     * Check whether the string is an operator.
+     * If yes, return true. Otherwise, return false.
+     * @param str
+     * @param loc
+     * @return
+     */
+    private boolean isOperator(String str, int loc){
+    	// Make sure the search location is within the length of string
+    	if ((loc + ADD.length() > str.length()) ||
+    		(loc + SUB.length() > str.length()) ||
+    		(loc + MULT.length() > str.length()) ||
+    		(loc + DIV.length() > str.length())){
+    			return false;
+    	}
+    	// Check whether it contain arithmetic operator
+    	if ((str.substring(loc, loc+ADD.length()).equals(ADD)) ||
+    		(str.substring(loc, loc+SUB.length()).equals(SUB)) ||
+    		(str.substring(loc, loc+DIV.length()).equals(DIV)) ||
+    		(str.substring(loc, loc+MULT.length()).equals(MULT))){
+    			return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * adjustExpression function.
+     * Trim the string with correct ending of closing bracket
+     * @param str
+     * @return
+     */
+    private String adjustExpression(String str){
+    	String retStr = new String("");
+    	int numOpenBracket = 0;
+    	int indCloseBracket = 0;
+    	for (int a=0; a<str.length(); a++){
+    		if (str.charAt(a) == OPENBRACKET){
+    			numOpenBracket++;
+    		}
+    		if (str.charAt(a) == CLOSEBRACKET){
+    			indCloseBracket = a;
+    			break;
+    		}
+    	}
+    	// Find the matching brackets of the expression and trim off the rest of string
+    	if (numOpenBracket == 1){
+    		retStr = str.substring(0, indCloseBracket+1);
+    	}else{
+	    	int findCloseBracket = 1;
+	    	for (int a=indCloseBracket+1; a<str.length(); a++){
+	    		if (str.charAt(a) == CLOSEBRACKET){
+	    			findCloseBracket++;
+	    		}
+	    		if (numOpenBracket == findCloseBracket){
+	    			retStr = str.substring(0, a+1);
+	    			break;
+	    		}
+	    	}
+    	}
+    	return retStr;
     }
 }
