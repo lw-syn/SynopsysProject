@@ -45,6 +45,9 @@ public class Calculator {
 	private final static String INFO = "INFO";
 	private final static String ERROR = "ERROR";
 	private final static String DEBUG = "DEBUG";
+	private final static String errorLog = "This is error log";
+	private final static String infoLog = "This is info log";
+	private final static String debugLog = "This is debug log";
 
 	public static void main(String[] args) {
 		
@@ -53,9 +56,15 @@ public class Calculator {
 		File fileInfo = new File(infoFile);
 		File fileDebug = new File(debugFile);
 		try {
-			fileInfo.createNewFile();
-			fileError.createNewFile();
-			fileDebug.createNewFile();
+			if (fileInfo.createNewFile()){
+				Files.write(Paths.get(infoFile), String.format("%s%n", infoLog).getBytes(), StandardOpenOption.APPEND);
+			}
+			if (fileError.createNewFile()){
+				Files.write(Paths.get(errorFile), String.format("%s%n", errorLog).getBytes(), StandardOpenOption.APPEND);
+			}
+			if (fileDebug.createNewFile()){
+				Files.write(Paths.get(debugFile), String.format("%s%n", debugLog).getBytes(), StandardOpenOption.APPEND);
+			}
 		} catch (IOException e) {
 		    System.out.println(String.format("Fail to create the %s and %s files", infoFile, errorFile));
 		}
@@ -82,7 +91,7 @@ public class Calculator {
 					String result = interpreter.parserInputString(inputNoSpace);
 					String msg = String.format("%s : %s%n", input, result);
 					if ((result.equals(Interpreter.ERR_DIV_ZERO)) ||
-					  	(result.equals(Interpreter.ERR_EMPTY_STR)) ||
+					  	(result.equals(Interpreter.ERR_INCORRECT_FORMAT_STR)) ||
 					   	(result.equals(Interpreter.ERR_INPUT_ARGUMENT)) ||
 					   	(result.equals(Interpreter.ERR_UNKNOWN_OPERATOR))){
 					   	// If error, write it to error and debug file

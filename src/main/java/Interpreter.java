@@ -11,7 +11,7 @@ public class Interpreter {
 
 	private String _inputNoSpace;
 	
-	public final static String ERR_EMPTY_STR = "Input String is empty!";
+	public final static String ERR_INCORRECT_FORMAT_STR = "Input String is incorrect format!";
 	public final static String ERR_INPUT_ARGUMENT = "Error in the argument!";
 	public final static String ERR_NO_MATCH_BRACKET = "No Matching bracket!";
 	public final static String ERR_MISLOCATE_OPEN_CLOSE_BRACKET = "Mislocate open and close brackets!";
@@ -68,19 +68,24 @@ public class Interpreter {
     	// Create the calculation object and store the first and second number
     	Calculation cal = new Calculation(first, second);
     	String result = new String("");
+    	int inputOpenBracketIndex = str.indexOf(OPENBRACKET);
+    	String operator = str.substring(0, inputOpenBracketIndex);
     	// perform different arithmetic operation and convert it to a string
-		if (str.startsWith(ADD)){
+		if (operator.equalsIgnoreCase(ADD)){
 		    result = Double.toString(cal.add());
-		}else if (str.startsWith(SUB)){
+		}else if (operator.equalsIgnoreCase(SUB)){
 			result = Double.toString(cal.sub());
-		}else if (str.startsWith(MULT)){
+		}else if (operator.equalsIgnoreCase(MULT)){
 			result = Double.toString(cal.mult());
-		}else if (str.startsWith(DIV)){
+		}else if (operator.equalsIgnoreCase(DIV)){
 			double val = cal.div();
 			if (val != Double.NaN)
 				result = Double.toString(cal.div());
 			else
 				result = ERR_DIV_ZERO;
+		}
+		else{
+			result = ERR_UNKNOWN_OPERATOR;
 		}
 		return result;
     }
@@ -99,7 +104,7 @@ public class Interpreter {
     public String parserInputString(String inputStr){
     	// Make sure the inputStr is not null
     	if (inputStr == null){
-    		return ERR_EMPTY_STR;
+    		return ERR_INCORRECT_FORMAT_STR;
     	}
     	// Forward scan the inputStr and find the locations of the first matching 
     	// open and close brackets pair in the expression
@@ -168,6 +173,11 @@ public class Interpreter {
         	if (result.isEmpty()){
         		return ERR_UNKNOWN_OPERATOR;
         	}
+        	try{
+        		Double.parseDouble(result);
+        	}catch(NumberFormatException e){
+        		return result;
+        	}
         	if ((inputLastCommaIndex == -1) && (lastOpenBracketOnLeft == -1)){
         		return ("result = " + result);
         	}else{
@@ -215,6 +225,8 @@ public class Interpreter {
     	}
     	// Find the variable
     	String varStr = inputStr.substring(letLocation + LET.length()+1, firstComma);
+    	if (varStr.length() == 0)
+    		return null;
     	int secondComma = inputStr.indexOf(COMMA, firstComma+1);
     	if (secondComma == -1){
     		return null;
